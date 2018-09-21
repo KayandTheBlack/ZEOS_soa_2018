@@ -1,0 +1,67 @@
+
+user.o:     file format elf32-i386
+
+
+Disassembly of section .text:
+
+00000000 <inner>:
+   0:	55                   	push   %ebp
+   1:	89 e5                	mov    %esp,%ebp
+   3:	83 ec 10             	sub    $0x10,%esp
+   6:	e8 fc ff ff ff       	call   7 <inner+0x7>
+   b:	05 01 00 00 00       	add    $0x1,%eax
+  10:	c7 45 f8 00 00 00 00 	movl   $0x0,-0x8(%ebp)
+  17:	c7 45 fc 00 00 00 00 	movl   $0x0,-0x4(%ebp)
+  1e:	eb 0a                	jmp    2a <inner+0x2a>
+  20:	8b 45 fc             	mov    -0x4(%ebp),%eax
+  23:	01 45 f8             	add    %eax,-0x8(%ebp)
+  26:	83 45 fc 01          	addl   $0x1,-0x4(%ebp)
+  2a:	8b 45 fc             	mov    -0x4(%ebp),%eax
+  2d:	3b 45 08             	cmp    0x8(%ebp),%eax
+  30:	7c ee                	jl     20 <inner+0x20>
+  32:	8b 45 f8             	mov    -0x8(%ebp),%eax
+  35:	c9                   	leave  
+  36:	c3                   	ret    
+
+00000037 <outer>:
+  37:	55                   	push   %ebp
+  38:	89 e5                	mov    %esp,%ebp
+  3a:	83 ec 10             	sub    $0x10,%esp
+  3d:	e8 fc ff ff ff       	call   3e <outer+0x7>
+  42:	05 01 00 00 00       	add    $0x1,%eax
+  47:	c7 45 f8 00 00 00 00 	movl   $0x0,-0x8(%ebp)
+  4e:	c7 45 fc 00 00 00 00 	movl   $0x0,-0x4(%ebp)
+  55:	eb 12                	jmp    69 <outer+0x32>
+  57:	ff 75 fc             	pushl  -0x4(%ebp)
+  5a:	e8 fc ff ff ff       	call   5b <outer+0x24>
+  5f:	83 c4 04             	add    $0x4,%esp
+  62:	01 45 f8             	add    %eax,-0x8(%ebp)
+  65:	83 45 fc 01          	addl   $0x1,-0x4(%ebp)
+  69:	8b 45 fc             	mov    -0x4(%ebp),%eax
+  6c:	3b 45 08             	cmp    0x8(%ebp),%eax
+  6f:	7c e6                	jl     57 <outer+0x20>
+  71:	8b 45 f8             	mov    -0x8(%ebp),%eax
+  74:	c9                   	leave  
+  75:	c3                   	ret    
+
+Disassembly of section .text.main:
+
+00000000 <main>:
+   0:	55                   	push   %ebp
+   1:	89 e5                	mov    %esp,%ebp
+   3:	83 ec 10             	sub    $0x10,%esp
+   6:	e8 fc ff ff ff       	call   7 <main+0x7>
+   b:	05 01 00 00 00       	add    $0x1,%eax
+  10:	c7 45 fc 4b 00 00 00 	movl   $0x4b,-0x4(%ebp)
+  17:	c7 45 f8 00 00 00 00 	movl   $0x0,-0x8(%ebp)
+  1e:	ff 75 fc             	pushl  -0x4(%ebp)
+  21:	e8 fc ff ff ff       	call   22 <main+0x22>
+  26:	83 c4 04             	add    $0x4,%esp
+  29:	89 45 f8             	mov    %eax,-0x8(%ebp)
+  2c:	eb fe                	jmp    2c <main+0x2c>
+
+Disassembly of section .text.__x86.get_pc_thunk.ax:
+
+00000000 <__x86.get_pc_thunk.ax>:
+   0:	8b 04 24             	mov    (%esp),%eax
+   3:	c3                   	ret    
