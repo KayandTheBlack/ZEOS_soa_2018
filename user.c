@@ -4,6 +4,8 @@ char buff[24];
 
 int pid;
 
+int add2(int par1, int par2);
+
 int add(int par1, int par2){
     return par1+par2;
 }
@@ -32,7 +34,7 @@ int __attribute__ ((__section__(".text.main")))
     count = 75;
     acum = 0;
     acum = outer(count);
-    //add2(3,4);
+    acum = add2(3,4);
     while(1);
     return 0;
 }
