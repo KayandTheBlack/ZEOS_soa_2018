@@ -73,6 +73,7 @@ void setTrapHandler(int vector, void (*handler)(), int maxAccessibleFromPL)
   idt[vector].highOffset      = highWord((DWord)handler);
 }
 
+void keyboard_handler();
 
 void setIdt()
 {
@@ -83,7 +84,25 @@ void setIdt()
   set_handlers();
 
   /* ADD INITIALIZATION CODE FOR INTERRUPT VECTOR */
+  /* here go idt init + MSR */
+  /*handlers in entry.S, code routines in here*/
+  /* wrappers in wrappers.S*/
+  /* syscalls in sys.c*/
+
+  //initialize IDT keyboard interrupt
+  setInterruptHandler(33, keyboard_handler, 0);
 
   set_idt_reg(&idtR);
 }
 
+
+void keyboard_routine() {
+    unsigned char x = inb(0x60);
+    unsigned char c = x & 0x7F;
+    if((x & 0x80) == 0) { //make
+        c = char_map[c];
+        if (c == '\0') 
+            c = 'C';
+        printc_xy(0,0,c); //Beware unsigned -> signed
+    }
+}

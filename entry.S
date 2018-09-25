@@ -51,3 +51,54 @@
       movl %edx, %ds;           \
       movl %edx, %es
 
+#define RESTORE_ALL \
+      popl %ebx; \
+      popl %ecx; \
+      popl %edx; \
+      popl %esi; \
+      popl %edi; \
+      popl %ebp; \
+      popl %eax; \
+      popl %ds; \
+      popl %es; \
+      popl %fs; \
+      popl %gs;
+      
+#define EOI \
+      movb $0x20, %al; \
+      outb %al, $0x20;
+
+
+
+
+ENTRY(keyboard_handler)
+    SAVE_ALL
+    EOI
+    call keyboard_routine;
+    RESTORE_ALL
+    iret;
+    
+ENTRY(system_call_handler)
+    push $__USER_DS;
+    push %ebp
+    pushfl
+    push $__USER_CS
+    push 4(%ebp)
+    SAVE_ALL
+    cmpl $0, %eax;
+    jl err;
+    cmpl $MAX_SYSCALL, %eax;
+    jg err;
+    call *sys_call_table(,%eax, 0x04); // jump in steps on four, sys_call_table is a void* vector
+    jmp fin;
+err:
+    movl $-ENOSYS, %eax;  // error code for no such syscall
+fin:
+    movl %eax, 0x18(%esp);
+    RESTORE_ALL
+    movl (%esp), %edx;
+    movl 12(%esp), %ecx;
+    sti;
+    sysexit;
+    
+    
