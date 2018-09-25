@@ -12,6 +12,7 @@
 #include <mm_address.h>
 
 #include <sched.h>
+#include <errno.h>
 
 #define LECTURA 0
 #define ESCRIPTURA 1
@@ -44,4 +45,28 @@ int sys_fork()
 
 void sys_exit()
 {  
+}
+
+
+//write syscall
+void sys_write(int fd, char* buffer, int size) {
+	// check user params
+	int err = check_fd(fd, WRITE);
+	if(err) return err;
+	if(buffer == NULL) return -EFAULT;
+	if(size < 0) return -EINVAL;
+	char sysbuffer[4096];
+	int tmpsize=4096;
+	while(size > 0) {
+		if(size < tmpsize) tmpsize = size;
+		// copy data from/to user space
+		copy_from_user(buffer, sysbuffer, tmpsize); //check err
+		// implement requested service
+		sys_write_console(sysbuffer, tmpsize);
+
+		buffer = buffer+tmpsize*size(char);
+		size -= tmpsize;
+		
+	}
+	// return result
 }
