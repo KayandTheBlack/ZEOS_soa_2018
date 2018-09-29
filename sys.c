@@ -14,6 +14,8 @@
 #include <sched.h>
 #include <errno.h>
 
+#include <system.h> //UNSURE
+
 #define LECTURA 0
 #define ESCRIPTURA 1
 
@@ -49,7 +51,7 @@ void sys_exit()
 
 
 //write syscall
-int sys_write(int fd, char* buffer, int size) { //doesn't get here
+int sys_write(int fd, char* buffer, int size) {
 	// check user params
 	int err = check_fd(fd, ESCRIPTURA);
 	if(err) return err;
@@ -72,4 +74,10 @@ int sys_write(int fd, char* buffer, int size) { //doesn't get here
 
 	// return result
 	return written;
+}
+
+//gettime syscall
+int sys_gettime() {
+	// check user params
+	return zeos_ticks;
 }

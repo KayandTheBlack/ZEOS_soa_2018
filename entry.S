@@ -77,7 +77,15 @@ ENTRY(keyboard_handler)
     call keyboard_routine;
     RESTORE_ALL
     iret;
-    
+
+ENTRY(clock_handler)
+    SAVE_ALL
+    EOI
+    call clock_routine;
+    RESTORE_ALL
+    iret;
+
+
 ENTRY(system_call_handler)
     push $__USER_DS;
     push %ebp

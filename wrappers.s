@@ -73,3 +73,37 @@ SYSWRITENOERR:
 
 
     ret
+
+
+
+.globl gettime; .type gettime, @function; .align 0; gettime:
+    push %ebp
+    movl %esp, %ebp
+
+
+    movl $10, %eax
+
+
+    push %ecx
+    push %edx
+
+
+    push $POSTSYSGETTIME
+
+    push %ebp
+    movl %esp, %ebp
+
+
+    sysenter
+
+POSTSYSGETTIME:
+
+    pop %ebp
+    add $4, %esp
+    pop %edx
+    pop %ecx
+# 107 "wrappers.S"
+    pop %ebp
+
+
+    ret

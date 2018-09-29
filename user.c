@@ -38,6 +38,7 @@ int __attribute__ ((__section__(".text.main")))
     // EEEEEEEEEEEE
     char x = 'A';
     write(1, &x, 1);
+    count = gettime();
     // EEE
     while(1);
     return 0;

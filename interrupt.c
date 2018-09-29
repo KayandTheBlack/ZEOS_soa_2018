@@ -7,10 +7,13 @@
 #include <hardware.h>
 #include <io.h>
 
+#include <system.h>  //UNSURE
+
 #include <zeos_interrupt.h>
 
 Gate idt[IDT_ENTRIES];
 Register    idtR;
+
 
 char char_map[] =
 {
@@ -74,6 +77,7 @@ void setTrapHandler(int vector, void (*handler)(), int maxAccessibleFromPL)
 }
 
 void keyboard_handler();
+void clock_handler();
 void system_call_handler();
 int write(int fd, char* buffer, int size);
 void writeMSR(int msr, void * val);
@@ -95,6 +99,9 @@ void setIdt()
   //initialize IDT keyboard interrupt
   setInterruptHandler(33, keyboard_handler, 0);
   
+  //initialize IDT clock interrupt
+  setInterruptHandler(32, clock_handler, 0); //ticks are in system.c
+
   //idt not necessary for syscalls, but we need to modify MSRs
   writeMSR(0x174, __KERNEL_CS); //hope it works
   writeMSR(0x175, INITIAL_ESP);
@@ -115,4 +122,9 @@ void keyboard_routine() {
             c = 'C';
         printc_xy(0,0,c); //Beware unsigned -> signed
     }
+}
+
+void clock_routine() {
+    zeos_ticks +=1;
+    zeos_show_clock();
 }
