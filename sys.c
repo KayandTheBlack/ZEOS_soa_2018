@@ -56,6 +56,7 @@ int sys_write(int fd, char* buffer, int size) { //doesn't get here
 	if(buffer == NULL) return -EFAULT;
 	if(size < 0) return -EINVAL;
 	char sysbuffer[4096];
+	int written = 0; 
 	int tmpsize=4096;
 	while(size > 0) {
 		if(size < tmpsize) tmpsize = size;
@@ -66,10 +67,9 @@ int sys_write(int fd, char* buffer, int size) { //doesn't get here
 
 		buffer = buffer+tmpsize*sizeof(char);
 		size -= tmpsize;
-		
+		written += tmpsize;
 	}
-	// return result PLACEHOLDER
-	return 42;
 
-        // EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
+	// return result
+	return written;
 }

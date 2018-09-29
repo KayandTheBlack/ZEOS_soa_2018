@@ -35,7 +35,6 @@ void itoa(int a, char *b)
 int strlen(char *a)
 {
   int i;
-  
   i=0;
   
   while (a[i]!=0) i++;

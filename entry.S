@@ -99,8 +99,7 @@ fin:
     movl (%esp), %edx;
     movl 12(%esp), %ecx;
     sti;
-    sysexit; //does not stop code!
-    add $1245, %eax //test instruction
+    sysexit;
 
     
     

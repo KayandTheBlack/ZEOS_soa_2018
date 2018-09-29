@@ -16,6 +16,7 @@
 # 8 "wrappers.S" 2
 
 
+
 .globl writeMSR; .type writeMSR, @function; .align 0; writeMSR:
     push %ebp
     movl %esp, %ebp
@@ -59,8 +60,13 @@ POSTSYSWRITE:
     pop %ecx
 
 
-    movl $1, %eax
+    cmpl $0, %eax
+    jge SYSWRITENOERR
+    subl $0, %eax
 
+    movl $-1, %eax
+
+SYSWRITENOERR:
 
 
     pop %ebp

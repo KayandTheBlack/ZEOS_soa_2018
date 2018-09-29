@@ -5,6 +5,7 @@ Wrappers for sys_calls
 
 #include <asm.h>
 #include <segment.h>
+//#include <errno.h>
 
 
 ENTRY(writeMSR)
@@ -50,9 +51,14 @@ POSTSYSWRITE:
     pop %ecx
     
     //process result (if neg, put in perror and return -1, do it another time)
-    movl $1, %eax
-        // EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
-        
+    cmpl $0, %eax
+    jge SYSWRITENOERR
+    subl $0, %eax
+    //movl %eax, errno //PENDING, AS ERRNO IS NOT IN THIS COMPILATION PACK
+    movl $-1, %eax
+    
+SYSWRITENOERR:
+    
     //undo dyna link
     pop %ebp
     

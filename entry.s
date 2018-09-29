@@ -45,4 +45,3 @@ fin:
     movl 12(%esp), %ecx;
     sti;
     sysexit;
-    add $1245, %eax
