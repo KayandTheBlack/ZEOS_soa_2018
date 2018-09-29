@@ -49,9 +49,9 @@ void sys_exit()
 
 
 //write syscall
-void sys_write(int fd, char* buffer, int size) {
+int sys_write(int fd, char* buffer, int size) { //doesn't get here
 	// check user params
-	int err = check_fd(fd, WRITE);
+	int err = check_fd(fd, ESCRIPTURA);
 	if(err) return err;
 	if(buffer == NULL) return -EFAULT;
 	if(size < 0) return -EINVAL;
@@ -64,9 +64,12 @@ void sys_write(int fd, char* buffer, int size) {
 		// implement requested service
 		sys_write_console(sysbuffer, tmpsize);
 
-		buffer = buffer+tmpsize*size(char);
+		buffer = buffer+tmpsize*sizeof(char);
 		size -= tmpsize;
 		
 	}
-	// return result
+	// return result PLACEHOLDER
+	return 42;
+
+        // EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
 }

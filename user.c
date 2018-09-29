@@ -1,5 +1,4 @@
 #include <libc.h>
-
 char buff[24];
 
 int pid;
@@ -35,6 +34,11 @@ int __attribute__ ((__section__(".text.main")))
     acum = 0;
     acum = outer(count);
     acum = add2(3,4);
+
+    // EEEEEEEEEEEE
+    char x = 'A';
+    write(1, &x, 1);
+    // EEE
     while(1);
     return 0;
 }

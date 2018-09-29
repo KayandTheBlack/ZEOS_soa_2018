@@ -4,7 +4,7 @@
 
 #include <asm.h>
 #include <segment.h>
-
+#include <errno.h>
 
 /**************************************************/
 /**** Save & Restore ******************************/
@@ -99,6 +99,8 @@ fin:
     movl (%esp), %edx;
     movl 12(%esp), %ecx;
     sti;
-    sysexit;
+    sysexit; //does not stop code!
+    add $1245, %eax //test instruction
+
     
     

@@ -75,6 +75,8 @@ void setTrapHandler(int vector, void (*handler)(), int maxAccessibleFromPL)
 
 void keyboard_handler();
 void system_call_handler();
+int write(int fd, char* buffer, int size);
+void writeMSR(int msr, void * val);
 
 void setIdt()
 {
@@ -92,6 +94,11 @@ void setIdt()
 
   //initialize IDT keyboard interrupt
   setInterruptHandler(33, keyboard_handler, 0);
+  
+  //idt not necessary for syscalls, but we need to modify MSRs
+  writeMSR(0x174, __KERNEL_CS); //hope it works
+  writeMSR(0x175, INITIAL_ESP);
+  writeMSR(0x176, system_call_handler);
   
   //Prepare for Syscalls
   setTrapHandler(0x80, system_call_handler, 3);
