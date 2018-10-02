@@ -8,15 +8,6 @@ Wrappers for sys_calls
 //#include <libc.h>
 
 
-ENTRY(writeMSR)
-    push %ebp
-    movl %esp, %ebp
-    movl 8(%ebp), %ecx
-    movl 12(%ebp), %eax
-    wrmsr 
-    popl %ebp
-    ret
-    
     
 ENTRY(write)
     push %ebp
@@ -35,7 +26,7 @@ ENTRY(write)
     push %edx
     
     //store return @ of user code in stack (next instruction to sysenter)
-    push $POSTSYSWRITE
+    push $POSTSYSWRITE //use lea better.
     //create fake dynamic link
     push %ebp
     movl %esp, %ebp
@@ -53,8 +44,8 @@ POSTSYSWRITE:
     //process result (if neg, put in perror and return -1, do it another time)
     cmpl $0, %eax
     jge SYSWRITENOERR
-    subl $0, %eax
-    //movl %eax, errno //PENDING, AS ERRNO IS NOT IN THIS COMPILATION PACK
+    negl %eax
+    movl %eax, errno
     movl $-1, %eax
     
 SYSWRITENOERR:

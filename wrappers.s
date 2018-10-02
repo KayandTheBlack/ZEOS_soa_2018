@@ -17,15 +17,6 @@
 
 
 
-.globl writeMSR; .type writeMSR, @function; .align 0; writeMSR:
-    push %ebp
-    movl %esp, %ebp
-    movl 8(%ebp), %ecx
-    movl 12(%ebp), %eax
-    wrmsr
-    popl %ebp
-    ret
-
 
 .globl write; .type write, @function; .align 0; write:
     push %ebp
@@ -62,8 +53,8 @@ POSTSYSWRITE:
 
     cmpl $0, %eax
     jge SYSWRITENOERR
-    subl $0, %eax
-
+    negl %eax
+    movl %eax, errno
     movl $-1, %eax
 
 SYSWRITENOERR:
@@ -102,7 +93,7 @@ POSTSYSGETTIME:
     add $4, %esp
     pop %edx
     pop %ecx
-# 107 "wrappers.S"
+# 98 "wrappers.S"
     pop %ebp
 
 

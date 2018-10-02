@@ -110,4 +110,12 @@ fin:
     sysexit;
 
     
+ENTRY(writeMSR)
+    push %ebp
+    movl %esp, %ebp
+    movl 8(%ebp), %ecx
+    movl 12(%ebp), %eax
+    wrmsr 
+    popl %ebp
+    ret
     

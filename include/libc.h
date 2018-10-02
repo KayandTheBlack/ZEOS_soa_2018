@@ -8,7 +8,9 @@
 
 #include <stats.h>
 
-extern int errno;  //UNSURE
+extern int errno;
+
+void perror(const char * s);
 
 int write(int fd, char *buffer, int size);
 
@@ -17,6 +19,8 @@ void itoa(int a, char *b);
 int strlen(char *a);
 
 int getpid();
+
+int gettime();
 
 int fork();
 

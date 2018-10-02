@@ -35,9 +35,11 @@ int __attribute__ ((__section__(".text.main")))
     acum = outer(count);
     acum = add2(3,4);
 
+	char *b1=" :D";
     // EEEEEEEEEEEE
     char x = 'A';
-    write(1, &x, 1);
+    if(write(1, &x, 1) == -1) perror(b1);
+    if(write(2, &x, 1) == -1) perror(b1);
     count = gettime();
     // EEE
     while(1);

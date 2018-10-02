@@ -53,3 +53,13 @@ fin:
     movl 12(%esp), %ecx;
     sti;
     sysexit;
+
+
+.globl writeMSR; .type writeMSR, @function; .align 0; writeMSR:
+    push %ebp
+    movl %esp, %ebp
+    movl 8(%ebp), %ecx
+    movl 12(%ebp), %eax
+    wrmsr
+    popl %ebp
+    ret
