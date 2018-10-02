@@ -96,23 +96,21 @@ int strlen(char *a)
 
 void perror(const char * s) {
 //write first s, then : ' '
-/*
-    int count = 0;
+
+    int count;
     int colon = 0;
+    int l;
     char x[2] = ": ";
+    char *error;
     
     if(s != NULL && s[0] != '\0') {
-        while(s[count++] != '\0');
-        write(1, s, count-1);
+        count = strlen(s);
+        write(1, s, count);
         colon = 1;
+        write(1, x, 2);
     }
-    char error [10];
-    itoa(errno, error);
-    write(1, error, 1);
-    
-    if(colon) write(1, x, 2);
-    */
-    int l = strlen(strerror[errno]);
-    write(1, strerror[errno], l);
+    error = strerror[errno];
+    l = strlen(error);
+    write(1, error, l);
 }
 

@@ -23,6 +23,11 @@
     movl %esp, %ebp
 
 
+
+
+    push %ebx
+    push %ecx
+    push %edx
     movl 8(%ebp), %ebx
     movl 12(%ebp), %ecx
     movl 16(%ebp), %edx
@@ -45,6 +50,9 @@
 
 POSTSYSWRITE:
 
+
+
+
     pop %ebp
     add $4, %esp
     pop %edx
@@ -59,6 +67,10 @@ POSTSYSWRITE:
 
 SYSWRITENOERR:
 
+
+    pop %edx
+    pop %ecx
+    pop %ebx
 
     pop %ebp
 
@@ -93,7 +105,7 @@ POSTSYSGETTIME:
     add $4, %esp
     pop %edx
     pop %ecx
-# 98 "wrappers.S"
+# 110 "wrappers.S"
     pop %ebp
 
 

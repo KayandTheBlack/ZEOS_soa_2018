@@ -14,6 +14,11 @@ ENTRY(write)
     movl %esp, %ebp
     
     //Parameter passing
+
+//WARNING, STORE EBX AND THINGS!!
+    push %ebx
+    push %ecx
+    push %edx
     movl 8(%ebp), %ebx
     movl 12(%ebp), %ecx
     movl 16(%ebp), %edx
@@ -36,6 +41,9 @@ ENTRY(write)
     
 POSTSYSWRITE:
     //pop ebp, ret address, edx ecx
+    
+    
+    
     pop %ebp
     add $4, %esp
     pop %edx
@@ -51,6 +59,10 @@ POSTSYSWRITE:
 SYSWRITENOERR:
     
     //undo dyna link
+    pop %edx//warning
+    pop %ecx
+    pop %ebx
+    
     pop %ebp
     
     //return
