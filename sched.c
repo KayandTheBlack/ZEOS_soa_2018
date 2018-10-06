@@ -6,6 +6,8 @@
 #include <mm.h>
 #include <io.h>
 
+
+
 union task_union task[NR_TASKS]
   __attribute__((__section__(".data.task")));
 
@@ -18,6 +20,9 @@ struct task_struct *list_head_to_task_struct(struct list_head *l)
 
 extern struct list_head blocked;
 
+extern struct list_head freequeue;
+
+extern struct list_head readyqueue;
 
 /* get_DIR - Returns the Page Directory address for task 't' */
 page_table_entry * get_DIR (struct task_struct *t) 
@@ -55,16 +60,47 @@ void cpu_idle(void)
 
 void init_idle (void)
 {
-
+    struct list_head *entr;
+    struct task_struct *t_s;
+    entr = list_first(&freequeue);
+    list_del(entr);
+    t_s = list_head_to_task_struct(entr);
+    t_s->PID=0;
+    allocate_DIR(t_s);
+    // Init execution context here, TODO
+    idle_task = t_s;
+    /* TODO:
+           Store in stack of idle process @ of cpu_idle
+           Store in stack a 0 (fake ebp)
+           Keep in a field of the t_s the position of the stack where the initial ebp was
+    */
 }
 
 void init_task1(void)
 {
+    struct list_head *entr;
+    struct task_struct *t_s;
+    union task_union *t_u;
+    entr = list_first(&freequeue);
+    list_del(entr);
+    t_s = list_head_to_task_struct(entr);
+    t_s->PID=1;
+    allocate_DIR(t_s);
+    set_user_pages(t_s);s
+    t_u = (union task_union*)t_s;
+    tss.esp0 = &(t_u->stack[KERNEL_STACK_SIZE]); //TODO: ask wtf?
+    writeMSR(0x175, tss.esp0);
+    set_cr3(t_s->dir_pages_baseAddr);
 }
 
 
 void init_sched(){
-
+    int i;
+    INIT_LIST_HEAD(&freequeue);
+    INIT_LIST_HEAD(&readyqueue);
+    for (i=0; i<NR_TASKS; i++){
+        list_add_tail(&(task[i].task.list),&freequeue)
+    }
 }
 
 struct task_struct* current()
