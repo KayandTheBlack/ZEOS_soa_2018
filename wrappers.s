@@ -110,3 +110,26 @@ POSTSYSGETTIME:
 
 
     ret
+
+
+
+
+.globl getpid; .type getpid, @function; .align 0; getpid:
+    push %ebp
+    movl %esp, %ebp
+    movl $20, %eax
+    push %ecx
+    push %edx
+    push $POSTSYSGETPID
+    push %ebp
+    movl %esp, %ebp
+    sysenter
+
+POSTSYSGETPID:
+    pop %ebp
+    add $4, %esp
+    pop %edx
+    pop %ecx
+
+    pop %ebp
+    ret

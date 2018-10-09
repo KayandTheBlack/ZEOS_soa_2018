@@ -40,10 +40,7 @@ ENTRY(write)
     sysenter
     
 POSTSYSWRITE:
-    //pop ebp, ret address, edx ecx
-    
-    
-    
+    //pop ebp, ret address, edx ecx  
     pop %ebp
     add $4, %esp
     pop %edx
@@ -110,4 +107,49 @@ SYSGETTIMENOERR:*/
     pop %ebp
     
     //return
+    ret
+
+
+ENTRY(getpid)
+    push %ebp
+    movl %esp, %ebp
+    movl $20, %eax
+    push %ecx
+    push %edx
+    push $POSTSYSGETPID
+    push %ebp
+    movl %esp, %ebp
+    sysenter
+POSTSYSGETPID:
+    pop %ebp
+    add $4, %esp
+    pop %edx
+    pop %ecx
+    pop %ebp
+    ret
+
+
+ENTRY(fork)
+    push %ebp
+    movl %esp, %ebp
+    movl $2, %eax
+    push %ecx
+    push %edx
+    push $POSTSYSFORK
+    push %ebp
+    movl %esp, %ebp
+    sysenter
+POSTSYSFORK:
+    pop %ebp
+    add $4, %esp
+    pop %edx
+    pop %ecx
+    cmpl $0, %eax
+    jge SYSFORKNOERR
+    negl %eax
+    movl %eax, errno
+    movl $-1, %eax
+    
+SYSFORKNOERR:
+    pop %ebp
     ret

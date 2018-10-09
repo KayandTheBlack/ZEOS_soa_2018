@@ -41,6 +41,7 @@ int __attribute__ ((__section__(".text.main")))
     if(write(1, &x, 1) == -1) perror(b1);
     if(write(2, &x, 1) == -1) perror(b1);
     count = gettime();
+    count = getpid();
     // EEE
     while(1);
     return 0;
