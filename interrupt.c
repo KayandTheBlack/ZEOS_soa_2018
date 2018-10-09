@@ -79,8 +79,7 @@ void setTrapHandler(int vector, void (*handler)(), int maxAccessibleFromPL)
 void keyboard_handler();
 void clock_handler();
 void system_call_handler();
-int write(int fd, char* buffer, int size);
-void writeMSR(int msr, void * val);
+//int write(int fd, char* buffer, int size);
 
 void setIdt()
 {
@@ -103,12 +102,12 @@ void setIdt()
   setInterruptHandler(32, clock_handler, 0); //ticks are in system.c
 
   //idt not necessary for syscalls, but we need to modify MSRs
-  writeMSR(0x174, __KERNEL_CS); //hope it works
-  writeMSR(0x175, INITIAL_ESP);
+  writeMSR(0x174, (void*)__KERNEL_CS); //hope it works
+  writeMSR(0x175, (void*)INITIAL_ESP);
   writeMSR(0x176, system_call_handler);
   
   //Prepare for Syscalls
-  setTrapHandler(0x80, system_call_handler, 3);
+  //setTrapHandler(0x80, system_call_handler, 3);
   set_idt_reg(&idtR);
 }
 
@@ -122,6 +121,8 @@ void keyboard_routine() {
             c = 'C';
         printc_xy(0,0,c); //Beware unsigned -> signed
     }
+    //PROVISIONAL:
+    //task_switch(idle_task);
 }
 
 void clock_routine() {

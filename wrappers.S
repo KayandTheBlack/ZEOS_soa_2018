@@ -17,8 +17,8 @@ ENTRY(write)
 
 //WARNING, STORE EBX AND THINGS!!
     push %ebx
-    push %ecx
-    push %edx
+    //push %ecx
+    //push %edx
     movl 8(%ebp), %ebx
     movl 12(%ebp), %ecx
     movl 16(%ebp), %edx
@@ -59,8 +59,8 @@ POSTSYSWRITE:
 SYSWRITENOERR:
     
     //undo dyna link
-    pop %edx//warning
-    pop %ecx
+    //pop %edx//warning
+    //pop %ecx
     pop %ebx
     
     pop %ebp

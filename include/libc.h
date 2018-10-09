@@ -10,7 +10,7 @@
 
 extern int errno;
 
-void perror(const char * s);
+void perror(char * s);
 
 int write(int fd, char *buffer, int size);
 

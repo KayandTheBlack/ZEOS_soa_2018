@@ -5,6 +5,7 @@
 #include <libc.h>
 
 #include <errno.h>
+#include <entry.h>
 
 #include <types.h>
 
@@ -94,11 +95,10 @@ int strlen(char *a)
 }
 
 
-void perror(const char * s) {
+void perror(char * s) {
 //write first s, then : ' '
 
     int count;
-    int colon = 0;
     int l;
     char x[2] = ": ";
     char *error;
@@ -106,7 +106,6 @@ void perror(const char * s) {
     if(s != NULL && s[0] != '\0') {
         count = strlen(s);
         write(1, s, count);
-        colon = 1;
         write(1, x, 2);
     }
     error = strerror[errno];

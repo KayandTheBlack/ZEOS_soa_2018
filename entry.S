@@ -73,9 +73,9 @@
 
 ENTRY(keyboard_handler)
     SAVE_ALL
-    EOI
     call keyboard_routine;
     RESTORE_ALL
+    EOI
     iret;
 
 ENTRY(clock_handler)
@@ -115,6 +115,7 @@ ENTRY(writeMSR)
     movl %esp, %ebp
     movl 8(%ebp), %ecx
     movl 12(%ebp), %eax
+    xorl %edx, %edx
     wrmsr 
     popl %ebp
     ret

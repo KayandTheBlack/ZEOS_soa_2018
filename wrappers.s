@@ -26,8 +26,8 @@
 
 
     push %ebx
-    push %ecx
-    push %edx
+
+
     movl 8(%ebp), %ebx
     movl 12(%ebp), %ecx
     movl 16(%ebp), %edx
@@ -68,8 +68,8 @@ POSTSYSWRITE:
 SYSWRITENOERR:
 
 
-    pop %edx
-    pop %ecx
+
+
     pop %ebx
 
     pop %ebp

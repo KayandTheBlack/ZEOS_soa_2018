@@ -8,6 +8,7 @@
 #include <list.h>
 #include <types.h>
 #include <mm_address.h>
+#include <entry.h>
 
 #define NR_TASKS      10
 #define KERNEL_STACK_SIZE	1024
@@ -18,6 +19,7 @@ struct task_struct {
   int PID;			/* Process ID. This MUST be the first field of the struct. */
   page_table_entry * dir_pages_baseAddr;
   struct list_head list; //for queuing tasks (free, ready, blocked)
+  unsigned long* KERNEL_EBP;
 };
 
 union task_union {
@@ -43,6 +45,12 @@ void init_sched(void);
 struct task_struct * current();
 
 void task_switch(union task_union*t);
+
+void inner_task_switch(union task_union*t);
+
+unsigned long* getebp();
+
+void setesp(unsigned long* newesp);
 
 struct task_struct *list_head_to_task_struct(struct list_head *l);
 
