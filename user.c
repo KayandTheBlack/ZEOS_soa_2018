@@ -43,6 +43,10 @@ int __attribute__ ((__section__(".text.main")))
     count = gettime();
     count = getpid();
     // EEE
+    count = fork();
+    char b[10];
+    itoa(count, b);
+    write(1, b, strlen(b));
     while(1);
     return 0;
 }

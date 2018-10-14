@@ -1,0 +1,101 @@
+
+wrappers.o:     file format elf32-i386
+
+
+Disassembly of section .text:
+
+00000000 <write>:
+   0:	55                   	push   %ebp
+   1:	89 e5                	mov    %esp,%ebp
+   3:	53                   	push   %ebx
+   4:	8b 5d 08             	mov    0x8(%ebp),%ebx
+   7:	8b 4d 0c             	mov    0xc(%ebp),%ecx
+   a:	8b 55 10             	mov    0x10(%ebp),%edx
+   d:	b8 04 00 00 00       	mov    $0x4,%eax
+  12:	51                   	push   %ecx
+  13:	52                   	push   %edx
+  14:	68 1e 00 00 00       	push   $0x1e
+  19:	55                   	push   %ebp
+  1a:	89 e5                	mov    %esp,%ebp
+  1c:	0f 34                	sysenter 
+
+0000001e <POSTSYSWRITE>:
+  1e:	5d                   	pop    %ebp
+  1f:	83 c4 04             	add    $0x4,%esp
+  22:	5a                   	pop    %edx
+  23:	59                   	pop    %ecx
+  24:	83 f8 00             	cmp    $0x0,%eax
+  27:	7d 0c                	jge    35 <SYSWRITENOERR>
+  29:	f7 d8                	neg    %eax
+  2b:	a3 00 00 00 00       	mov    %eax,0x0
+  30:	b8 ff ff ff ff       	mov    $0xffffffff,%eax
+
+00000035 <SYSWRITENOERR>:
+  35:	5b                   	pop    %ebx
+  36:	5d                   	pop    %ebp
+  37:	c3                   	ret    
+
+00000038 <gettime>:
+  38:	55                   	push   %ebp
+  39:	89 e5                	mov    %esp,%ebp
+  3b:	b8 0a 00 00 00       	mov    $0xa,%eax
+  40:	51                   	push   %ecx
+  41:	52                   	push   %edx
+  42:	68 4c 00 00 00       	push   $0x4c
+  47:	55                   	push   %ebp
+  48:	89 e5                	mov    %esp,%ebp
+  4a:	0f 34                	sysenter 
+
+0000004c <POSTSYSGETTIME>:
+  4c:	5d                   	pop    %ebp
+  4d:	83 c4 04             	add    $0x4,%esp
+  50:	5a                   	pop    %edx
+  51:	59                   	pop    %ecx
+  52:	5d                   	pop    %ebp
+  53:	c3                   	ret    
+
+00000054 <getpid>:
+  54:	55                   	push   %ebp
+  55:	89 e5                	mov    %esp,%ebp
+  57:	b8 14 00 00 00       	mov    $0x14,%eax
+  5c:	51                   	push   %ecx
+  5d:	52                   	push   %edx
+  5e:	68 68 00 00 00       	push   $0x68
+  63:	55                   	push   %ebp
+  64:	89 e5                	mov    %esp,%ebp
+  66:	0f 34                	sysenter 
+
+00000068 <POSTSYSGETPID>:
+  68:	5d                   	pop    %ebp
+  69:	83 c4 04             	add    $0x4,%esp
+  6c:	5a                   	pop    %edx
+  6d:	59                   	pop    %ecx
+  6e:	5d                   	pop    %ebp
+  6f:	c3                   	ret    
+
+00000070 <fork>:
+  70:	55                   	push   %ebp
+  71:	89 e5                	mov    %esp,%ebp
+  73:	51                   	push   %ecx
+  74:	52                   	push   %edx
+  75:	8d 05 86 00 00 00    	lea    0x86,%eax
+  7b:	50                   	push   %eax
+  7c:	b8 02 00 00 00       	mov    $0x2,%eax
+  81:	55                   	push   %ebp
+  82:	89 e5                	mov    %esp,%ebp
+  84:	0f 34                	sysenter 
+
+00000086 <POSTSYSFORK>:
+  86:	5d                   	pop    %ebp
+  87:	83 c4 04             	add    $0x4,%esp
+  8a:	5a                   	pop    %edx
+  8b:	59                   	pop    %ecx
+  8c:	83 f8 00             	cmp    $0x0,%eax
+  8f:	7d 0c                	jge    9d <SYSFORKNOERR>
+  91:	f7 d8                	neg    %eax
+  93:	a3 00 00 00 00       	mov    %eax,0x0
+  98:	b8 ff ff ff ff       	mov    $0xffffffff,%eax
+
+0000009d <SYSFORKNOERR>:
+  9d:	5d                   	pop    %ebp
+  9e:	c3                   	ret    

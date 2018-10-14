@@ -20,6 +20,7 @@ struct task_struct {
   page_table_entry * dir_pages_baseAddr;
   struct list_head list; //for queuing tasks (free, ready, blocked)
   unsigned long* KERNEL_EBP;
+  unsigned int QUANTUM;
 };
 
 union task_union {
@@ -35,9 +36,13 @@ struct list_head freequeue;
 
 struct list_head readyqueue;
 
+unsigned int quantum; //need to initiate it in user and all.
+
 #define KERNEL_ESP(t)       	(DWord) &(t)->stack[KERNEL_STACK_SIZE]
 
 #define INITIAL_ESP       	KERNEL_ESP(&task[1])
+
+#define MAX_QUANTUM 100
 
 /* Inicialitza les dades del proces inicial */
 void init_task1(void);
@@ -70,4 +75,8 @@ void update_process_state_rr(struct task_struct *t, struct list_head *dest);
 int needs_sched_rr();
 void update_sched_data_rr();
 
+void schedule();
+
+int get_quantum(struct task_struct *t);
+void set_quantum(struct task_struct *t, int new_quantum);
 #endif  /* __SCHED_H__ */

@@ -131,10 +131,12 @@ POSTSYSGETPID:
 .globl fork; .type fork, @function; .align 0; fork:
     push %ebp
     movl %esp, %ebp
-    movl $2, %eax
     push %ecx
     push %edx
-    push $POSTSYSFORK
+
+    lea POSTSYSFORK, %eax
+    pushl %eax
+    movl $2, %eax
     push %ebp
     movl %esp, %ebp
     sysenter

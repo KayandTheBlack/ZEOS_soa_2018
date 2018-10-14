@@ -47,7 +47,7 @@ int sys_fork()
     if (list_empty(&freequeue))
         return -EAGAIN;
     entr = list_first(&freequeue);
-    
+    struct list_head auxiliar = (*entr);
     
     // b)
     t_s = list_head_to_task_struct(entr);
@@ -61,7 +61,7 @@ int sys_fork()
     int pag; 
     int best=-1, bestcount=-1; // bescount counts 1 as 0...
     int curr=-1;
-    int nframes[TOTAL_PAGES]; //TODO ask: too much mem?
+    int nframes[TOTAL_PAGES];
     
     page_table_entry * process_PT =  get_PT(current());
     page_table_entry * process_PT_new =  get_PT(t_s);
@@ -92,6 +92,7 @@ int sys_fork()
             }
             curr = -1;
         }else{
+            nframes[pag] = -1;
             if(curr == -1)
 		        curr = pag;
 	        if(pag-curr > bestcount) {
@@ -104,25 +105,27 @@ int sys_fork()
     //Changing logical space + copying pages
     curr = 0;
     for (pag = 0; pag < TOTAL_PAGES; pag++){
-        if (nframes[pag] != -1) {
+        if (nframes[pag] != -1) { //USER/STACK?
             if(curr == bestcount + 1) {
                 for(curr = 0; curr <= bestcount; curr++) {
                     del_ss_pag(process_PT, curr+best);
                 }
-                set_cr3(process_PT);
+                set_cr3(get_DIR(current()));
                 curr = 0;
             }
             set_ss_pag(process_PT, curr+best, nframes[pag]);
-            copy_data((void*)process_PT[pag].bits.pbase_addr, (void*)process_PT[curr+best].bits.pbase_addr, 4*KERNEL_STACK_SIZE); //!!! TODO check
+            //copy_data((void*)process_PT[pag].bits.pbase_addr, (void*)process_PT[curr+best].bits.pbase_addr, 4*KERNEL_STACK_SIZE); //!!! TODO check
+            copy_data((void*) ((/*PAG_LOG_INIT_DATA_P0+*/pag) << 12), (void*)((curr+best)<< 12), 4*KERNEL_STACK_SIZE);
             curr++;
         }
     }
-    for(; curr >= 0; curr--) {
+    for(curr = curr-1; curr >= 0; curr--) {
         del_ss_pag(process_PT, curr+best);
     }
-    set_cr3(process_PT);
+    set_cr3(get_DIR(current()));
     
     // removing the new t_s entry from freequeue here, since no more errors.
+    (*entr) = auxiliar;
     list_del(entr);
     
     //Assign PID
@@ -142,8 +145,8 @@ int sys_fork()
      
     //Prepare child stack with content that emulates result of call to task_switch. (create and use ret_from_fork). (like idle)
     //IDEA change KERNEL_EBP like in idle to change the return directions.
-    *(t_s->KERNEL_EBP) = ret_from_fork;
-    t_s->KERNEL_EBP = (t_s->KERNEL_EBP)-1; // conversion is good?
+    *(t_s->KERNEL_EBP) = (long) ret_from_fork;
+    t_s->KERNEL_EBP =  (t_s->KERNEL_EBP)-1; // conversion is good?
     //insert in ready_queue
     list_add_tail(entr, &readyqueue);
     //return pid of child
