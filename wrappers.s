@@ -50,9 +50,6 @@
 
 POSTSYSWRITE:
 
-
-
-
     pop %ebp
     add $4, %esp
     pop %edx
@@ -105,13 +102,11 @@ POSTSYSGETTIME:
     add $4, %esp
     pop %edx
     pop %ecx
-# 110 "wrappers.S"
+# 107 "wrappers.S"
     pop %ebp
 
 
     ret
-
-
 
 
 .globl getpid; .type getpid, @function; .align 0; getpid:
@@ -124,12 +119,36 @@ POSTSYSGETTIME:
     push %ebp
     movl %esp, %ebp
     sysenter
-
 POSTSYSGETPID:
     pop %ebp
     add $4, %esp
     pop %edx
     pop %ecx
+    pop %ebp
+    ret
 
+
+.globl fork; .type fork, @function; .align 0; fork:
+    push %ebp
+    movl %esp, %ebp
+    movl $2, %eax
+    push %ecx
+    push %edx
+    push $POSTSYSFORK
+    push %ebp
+    movl %esp, %ebp
+    sysenter
+POSTSYSFORK:
+    pop %ebp
+    add $4, %esp
+    pop %edx
+    pop %ecx
+    cmpl $0, %eax
+    jge SYSFORKNOERR
+    negl %eax
+    movl %eax, errno
+    movl $-1, %eax
+
+SYSFORKNOERR:
     pop %ebp
     ret
