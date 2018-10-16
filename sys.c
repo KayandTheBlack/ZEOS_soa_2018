@@ -49,6 +49,8 @@ int sys_fork()
     entr = list_first(&freequeue);
     struct list_head auxiliar = (*entr);
     
+    set_cr3(current()-> dir_pages_baseAddr);
+
     // b)
     t_s = list_head_to_task_struct(entr);
     copy_data(current(), t_s, 4*KERNEL_STACK_SIZE);
@@ -110,7 +112,7 @@ int sys_fork()
                 for(curr = 0; curr <= bestcount; curr++) {
                     del_ss_pag(process_PT, curr+best);
                 }
-                set_cr3(get_DIR(current()));
+                set_cr3(current()-> dir_pages_baseAddr);
                 curr = 0;
             }
             set_ss_pag(process_PT, curr+best, nframes[pag]);
@@ -122,7 +124,7 @@ int sys_fork()
     for(curr = curr-1; curr >= 0; curr--) {
         del_ss_pag(process_PT, curr+best);
     }
-    set_cr3(get_DIR(current()));
+    set_cr3(current()-> dir_pages_baseAddr);
     
     // removing the new t_s entry from freequeue here, since no more errors.
     (*entr) = auxiliar;

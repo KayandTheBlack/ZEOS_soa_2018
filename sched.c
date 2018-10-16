@@ -11,12 +11,17 @@
 union task_union task[NR_TASKS]
   __attribute__((__section__(".data.task")));
 
-#if 1
+#if 0
 struct task_struct *list_head_to_task_struct(struct list_head *l)
 {
   return list_entry( l, struct task_struct, list);
 }
 #endif
+
+struct task_struct *list_head_to_task_struct(struct list_head *l)
+{
+  return (struct task_struct*)((unsigned int)l&0xfffff000);
+}
 
 extern struct list_head blocked;
 
@@ -87,6 +92,7 @@ void init_task1(void)
     
     t_s->QUANTUM = MAX_QUANTUM;
     
+    quantum = 0;
     allocate_DIR(t_s);
     set_user_pages(t_s);
     t_u = (union task_union*)t_s;
@@ -139,8 +145,7 @@ void update_process_state_rr(struct task_struct *t, struct list_head *dest) {
 }
 int needs_sched_rr(){
     // if quantum exceeded, return 1, else 0
-    if(quantum == 0 && !list_empty(&readyqueue)) return 1;
-    return 0;
+    return (quantum == 0) && (!list_empty(&readyqueue));
 }
 void sched_next_rr(){
     // executed AFTER update_process_state_rr, selects next process to execute. Extracts it from ready_queue and puts it to calls task_switch(?) Implements ROUND ROBIN
