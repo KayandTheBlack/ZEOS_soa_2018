@@ -49,7 +49,6 @@ int sys_fork()
     entr = list_first(&freequeue);
     struct list_head auxiliar = (*entr);
     
-    set_cr3(current()-> dir_pages_baseAddr);
 
     // b)
     t_s = list_head_to_task_struct(entr);
@@ -60,71 +59,63 @@ int sys_fork()
     allocate_DIR(t_s);
     
     // d)
-    int pag; 
-    int best=-1, bestcount=-1; // bescount counts 1 as 0...
-    int curr=-1;
-    int nframes[TOTAL_PAGES];
+    
+    int pag;
+    int nframes[NUM_PAG_DATA];
     
     page_table_entry * process_PT =  get_PT(current());
     page_table_entry * process_PT_new =  get_PT(t_s);
-    for (pag = 0; pag < TOTAL_PAGES; pag++){
-        if (process_PT[pag].bits.present){
-            if (process_PT[pag].bits.rw && process_PT[pag].bits.user){ //USER DATA/STACK
-                nframes[pag] = alloc_frame();
-                if (nframes[pag] != -1){
-                    process_PT_new[pag].bits.present = 1;
-                    process_PT_new[pag].bits.rw = 1;
-                    process_PT_new[pag].bits.user = 1;
-                    process_PT_new[pag].bits.pbase_addr = nframes[pag];
-                }else{
-                    while (pag != -1){
-                        if (nframes[pag] != -1)
-                            free_frame((unsigned int) nframes[pag]);
-                        pag--;
-                    }
-                    // No need to de-allocate dir?? TODO
-                    return -ENOMEM;
-                }
-            }else{
-                nframes[pag] = -1;
-                process_PT_new[pag].bits.present = 1;
-                process_PT_new[pag].bits.rw = process_PT[pag].bits.rw;
-                process_PT_new[pag].bits.user = process_PT[pag].bits.user;
-                process_PT_new[pag].bits.pbase_addr = process_PT[pag].bits.pbase_addr;
-            }
-            curr = -1;
-        }else{
-            nframes[pag] = -1;
-            if(curr == -1)
-		        curr = pag;
-	        if(pag-curr > bestcount) {
-		        best = curr;
-		        bestcount = pag-curr;
-	        }
-        }
-    }
+    page_table_entry * dir_current = get_DIR(current());
     
-    //Changing logical space + copying pages
-    curr = 0;
-    for (pag = 0; pag < TOTAL_PAGES; pag++){
-        if (nframes[pag] != -1) { //USER/STACK?
-            if(curr == bestcount + 1) {
-                for(curr = 0; curr <= bestcount; curr++) {
-                    del_ss_pag(process_PT, curr+best);
+    for(pag = 0; pag < NUM_PAG_DATA; pag++){
+        if(process_PT[pag].bits.present) {
+            nframes[pag] = alloc_frame();
+            if (nframes[pag] != -1){
+                process_PT_new[pag].entry = process_PT[pag].entry;
+            } else {
+                while (pag != -1){
+                    if (nframes[pag] != -1)
+                        free_frame((unsigned int) nframes[pag]);
+                    pag--;
                 }
-                set_cr3(current()-> dir_pages_baseAddr);
-                curr = 0;
             }
-            set_ss_pag(process_PT, curr+best, nframes[pag]);
-            //copy_data((void*)process_PT[pag].bits.pbase_addr, (void*)process_PT[curr+best].bits.pbase_addr, 4*KERNEL_STACK_SIZE); //!!! TODO check
-            copy_data((void*) ((/*PAG_LOG_INIT_DATA_P0+*/pag) << 12), (void*)((curr+best)<< 12), 4*KERNEL_STACK_SIZE);
-            curr++;
         }
     }
-    for(curr = curr-1; curr >= 0; curr--) {
-        del_ss_pag(process_PT, curr+best);
+    //Kernel copy
+    for (pag = 0; pag < NUM_PAG_KERNEL; pag++){
+        process_PT_new[pag].entry = process_PT[pag].entry;
     }
-    set_cr3(current()-> dir_pages_baseAddr);
+    //Code copy
+    for (pag = PAG_LOG_INIT_CODE; pag < PAG_LOG_INIT_CODE+NUM_PAG_CODE; pag++){
+        process_PT_new[pag].entry = process_PT[pag].entry;
+    }
+    //Data link
+    for (pag = PAG_LOG_INIT_DATA; pag < NUM_PAG_DATA+PAG_LOG_INIT_DATA; pag++){
+        set_ss_pag(process_PT_new,pag,nframes[pag-PAG_LOG_INIT_DATA]);
+    }
+    //Temporal pages acquisition
+    int best=-1, curr=-1, bestcount=0;
+    for(int i=0; i<TOTAL_PAGES; i++){
+        if(! process_PT[pag].bits.present) {
+            if(curr == -1)
+                curr = pag;
+            if((pag-curr+1) > bestcount) {
+                best = curr;
+                bestcount = pag-curr;
+            }
+        }
+    }
+    //DATA copy
+    for(pag = PAG_LOG_INIT_DATA, curr=0; pag < NUM_PAG_DATA+PAG_LOG_INIT_DATA; pag++) {
+        if(curr == bestcount) {
+            curr = 0;
+            set_cr3(dir_current);
+        }
+        set_ss_pag(process_PT, curr+best, nframes[pag]);
+        copy_data((void*) (pag << 12), (void*)((curr+best)<< 12), 4*KERNEL_STACK_SIZE);
+        del_ss_pag(process_PT, curr+best); //will need flush above
+    }
+    set_cr3(dir_current);
     
     // removing the new t_s entry from freequeue here, since no more errors.
     (*entr) = auxiliar;
