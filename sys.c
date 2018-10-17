@@ -111,7 +111,7 @@ int sys_fork()
             curr = 0;
             set_cr3(dir_current);
         }
-        set_ss_pag(process_PT, curr+best, nframes[pag]);
+        set_ss_pag(process_PT, curr+best, nframes[pag-PAG_LOG_INIT_DATA]);
         copy_data((void*) (pag << 12), (void*)((curr+best)<< 12), 4*KERNEL_STACK_SIZE);
         del_ss_pag(process_PT, curr+best); //will need flush above
     }
@@ -138,6 +138,7 @@ int sys_fork()
      
     //Prepare child stack with content that emulates result of call to task_switch. (create and use ret_from_fork). (like idle)
     //IDEA change KERNEL_EBP like in idle to change the return directions.
+    t_s->KERNEL_EBP = (unsigned long* ) ((long) getebp() & 0x00000fff | (long)t_s);
     *(t_s->KERNEL_EBP) = (long) ret_from_fork;
     t_s->KERNEL_EBP =  (t_s->KERNEL_EBP)-1; // conversion is good?
     //insert in ready_queue

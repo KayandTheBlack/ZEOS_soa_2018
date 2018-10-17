@@ -92,7 +92,7 @@ void init_task1(void)
     
     t_s->QUANTUM = MAX_QUANTUM;
     
-    quantum = 0;
+    quantum = MAX_QUANTUM;
     allocate_DIR(t_s);
     set_user_pages(t_s);
     t_u = (union task_union*)t_s;
@@ -128,7 +128,7 @@ void inner_task_switch(union task_union*t) {
     tss.esp0 = (int)&(t->stack[KERNEL_STACK_SIZE]);
     writeMSR(0x175, (void*) tss.esp0);
     set_cr3(t->task.dir_pages_baseAddr);
-    current()->KERNEL_EBP = getebp();
+    current()->KERNEL_EBP = getebp()+0x12;//TODO: mention in class, this function is kinda retarded and stores ebx edi esi.
     setesp(t->task.KERNEL_EBP);
 }
 
@@ -140,28 +140,33 @@ void update_sched_data_rr(){
 }
 void update_process_state_rr(struct task_struct *t, struct list_head *dest) {
     //delete from current queue, insert in dest if not null
-    list_del(&(t->list));
+    if(t->list.prev !=  0) //node in some list
+        list_del(&(t->list));
     if(dest != NULL) list_add_tail(&(t->list), dest);
 }
 int needs_sched_rr(){
     // if quantum exceeded, return 1, else 0
-    return (quantum == 0) && (!list_empty(&readyqueue));
+    if(quantum == 0){
+        if(list_empty(&readyqueue)) return 0;
+        return 1;
+    }
+    return 0;
 }
 void sched_next_rr(){
     // executed AFTER update_process_state_rr, selects next process to execute. Extracts it from ready_queue and puts it to calls task_switch(?) Implements ROUND ROBIN
     struct task_struct * new;
     struct list_head *entr;
-    entr = list_first(&freequeue);
+    entr = list_first(&readyqueue);
     list_del(entr);
     new = list_head_to_task_struct(entr);
     quantum = new->QUANTUM;
     task_switch((union task_union*) new);
 }
 
-
 void schedule() {
     update_sched_data_rr();
-    if(needs_sched_rr()){ // how do we know if current is blocked to put idle? Let's assume no idle yet
+    int x = needs_sched_rr();
+    if(x){ // how do we know if current is blocked to put idle? Let's assume no idle yet
         //context switch
         if(current() != idle_task) update_process_state_rr(current(), &readyqueue);
         sched_next_rr();

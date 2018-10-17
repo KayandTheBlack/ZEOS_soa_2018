@@ -122,7 +122,7 @@ void keyboard_routine() {
         printc_xy(0,0,c); //Beware unsigned -> signed
     }
     //PROVISIONAL:
-    //task_switch(idle_task);
+    //task_switch(0x16000);
 }
 
 void clock_routine() {
