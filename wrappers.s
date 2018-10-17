@@ -150,7 +150,25 @@ POSTSYSFORK:
     negl %eax
     movl %eax, errno
     movl $-1, %eax
-
 SYSFORKNOERR:
+    pop %ebp
+    ret
+
+
+.globl exit; .type exit, @function; .align 0; exit:
+    push %ebp
+    movl %esp, %ebp
+    movl $1, %eax
+    push %ecx
+    push %edx
+    push $POSTSYSEXIT
+    push %ebp
+    movl %esp, %ebp
+    sysenter
+POSTSYSEXIT:
+    pop %ebp
+    add $4, %esp
+    pop %edx
+    pop %ecx
     pop %ebp
     ret

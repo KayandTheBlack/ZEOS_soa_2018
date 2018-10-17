@@ -122,7 +122,7 @@ int sys_fork()
     list_del(entr);
     
     //Assign PID
-    int possiblePID = current()->PID + 142; //not really random, but different from task index.
+    int possiblePID = current()->PID + 1; //not really random, but different from task index.
     int i; int valid = 0;
     while(!valid) {
         possiblePID ++;
@@ -138,7 +138,7 @@ int sys_fork()
      
     //Prepare child stack with content that emulates result of call to task_switch. (create and use ret_from_fork). (like idle)
     //IDEA change KERNEL_EBP like in idle to change the return directions.
-    t_s->KERNEL_EBP = (unsigned long* ) ((long) getebp() & 0x00000fff | (long)t_s);
+    t_s->KERNEL_EBP = (unsigned long* ) (((long) getebp() & 0x00000fff) | (long)t_s);
     *(t_s->KERNEL_EBP) = (long) ret_from_fork;
     t_s->KERNEL_EBP =  (t_s->KERNEL_EBP)-1; // conversion is good?
     //insert in ready_queue
@@ -158,6 +158,15 @@ int sys_fork()
 
 void sys_exit()
 {  
+    int pag;
+    page_table_entry * process_PT =  get_PT(current());
+    for(pag = 0; pag < NUM_PAG_DATA; pag++) {
+        if(process_PT[pag+PAG_LOG_INIT_DATA].bits.present) 
+            free_frame(get_frame(process_PT, pag+PAG_LOG_INIT_DATA));
+    }
+    update_process_state_rr(current(), &freequeue);
+    sched_next_rr();
+    
 }
 
 

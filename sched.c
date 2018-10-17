@@ -146,20 +146,26 @@ void update_process_state_rr(struct task_struct *t, struct list_head *dest) {
 }
 int needs_sched_rr(){
     // if quantum exceeded, return 1, else 0
-    if(quantum == 0){
+    /*if(quantum == 0){
         if(list_empty(&readyqueue)) return 0;
         return 1;
     }
-    return 0;
+    return 0;*/
+    return ((quantum == 0) && (!(list_empty(&readyqueue))));
 }
 void sched_next_rr(){
     // executed AFTER update_process_state_rr, selects next process to execute. Extracts it from ready_queue and puts it to calls task_switch(?) Implements ROUND ROBIN
     struct task_struct * new;
     struct list_head *entr;
-    entr = list_first(&readyqueue);
-    list_del(entr);
-    new = list_head_to_task_struct(entr);
-    quantum = new->QUANTUM;
+    if(list_empty(&readyqueue)) {
+        new = idle_task;
+        quantum = 0; //we want to exit ASAP
+    } else {
+        entr = list_first(&readyqueue);
+        list_del(entr);
+        new = list_head_to_task_struct(entr);
+        quantum = new->QUANTUM;
+    }
     task_switch((union task_union*) new);
 }
 

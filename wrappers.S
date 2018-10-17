@@ -151,7 +151,26 @@ POSTSYSFORK:
     negl %eax
     movl %eax, errno
     movl $-1, %eax
-    
 SYSFORKNOERR:
     pop %ebp
     ret
+
+
+ENTRY(exit)
+    push %ebp
+    movl %esp, %ebp
+    movl $1, %eax
+    push %ecx
+    push %edx
+    push $POSTSYSEXIT
+    push %ebp
+    movl %esp, %ebp
+    sysenter
+POSTSYSEXIT: //not actually necessary
+    pop %ebp
+    add $4, %esp
+    pop %edx
+    pop %ecx
+    pop %ebp
+    ret
+
