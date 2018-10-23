@@ -1,5 +1,0 @@
-Idle process: Initializing execution context? What is this?
-	      4.4.1.2 (see todo in idle init)
-	      
-Init process: Is the TSS thing we did ok?
-	      
