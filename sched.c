@@ -128,7 +128,7 @@ void inner_task_switch(union task_union*t) {
     tss.esp0 = (int)&(t->stack[KERNEL_STACK_SIZE]);
     writeMSR(0x175, (void*) tss.esp0);
     set_cr3(t->task.dir_pages_baseAddr);
-    current()->KERNEL_EBP = getebp()+0x12;//TODO: mention in class, this function is kinda retarded and stores ebx edi esi.
+    current()->KERNEL_EBP = getebp();
     setesp(t->task.KERNEL_EBP);
 }
 

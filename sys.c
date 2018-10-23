@@ -14,7 +14,7 @@
 #include <sched.h>
 #include <errno.h>
 
-#include <system.h> //UNSURE
+#include <system.h>
 
 #define LECTURA 0
 #define ESCRIPTURA 1
@@ -177,9 +177,9 @@ int sys_write(int fd, char* buffer, int size) {
 	if(err) return err;
 	if(buffer == NULL) return -EFAULT;
 	if(size < 0) return -EINVAL;
-	char sysbuffer[4096];
+	char sysbuffer[256];
 	int written = 0; 
-	int tmpsize=4096;
+	int tmpsize=256;
 	while(size > 0) {
 		if(size < tmpsize) tmpsize = size;
 		// copy data from/to user space
