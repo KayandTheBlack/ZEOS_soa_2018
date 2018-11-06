@@ -8,6 +8,7 @@
 #include <io.h>
 
 #include <sched.h>
+#include <schedperf.h>
 
 #include <zeos_interrupt.h>
 
@@ -37,7 +38,7 @@ void clock_routine()
 {
   zeos_show_clock();
   zeos_ticks ++;
-  
+  zeos_update_read_console_emul();
   schedule();
 }
 

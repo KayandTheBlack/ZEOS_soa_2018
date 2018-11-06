@@ -8,6 +8,7 @@
 #include <hardware.h>
 #include <system.h>
 #include <sched.h>
+#include <schedperf.h>
 #include <mm.h>
 #include <io.h>
 #include <utils.h>
@@ -94,6 +95,7 @@ int __attribute__((__section__(".text.main")))
   init_idle();
   /* Initialize task 1 data */
   init_task1();
+  zeos_console_init();
 
   /* Move user code/data now (after the page table initialization) */
   copy_data((void *) KERNEL_START + *p_sys_size, usr_main, *p_usr_size);
