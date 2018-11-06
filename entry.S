@@ -6,6 +6,7 @@
 #include <segment.h>
 #include <errno.h>
 
+
 /**************************************************/
 /**** Save & Restore ******************************/
 /**                                              **/
@@ -52,71 +53,67 @@
       movl %edx, %es
 
 #define RESTORE_ALL \
-      popl %ebx; \
-      popl %ecx; \
-      popl %edx; \
-      popl %esi; \
-      popl %edi; \
-      popl %ebp; \
-      popl %eax; \
-      popl %ds; \
-      popl %es; \
-      popl %fs; \
+      popl %ebx;   \
+      popl %ecx;   \
+      popl %edx;   \
+      popl %esi;   \
+      popl %edi;   \
+      popl %ebp;   \
+      popl %eax;   \
+      popl %ds;    \
+      popl %es;    \
+      popl %fs;    \
       popl %gs;
-      
+
 #define EOI \
       movb $0x20, %al; \
       outb %al, $0x20;
 
-
-
+ENTRY(clock_handler)
+      SAVE_ALL
+      pushl %eax;
+      call user_to_system;
+      popl %eax;
+      EOI
+      call clock_routine;
+      pushl %eax;
+      call system_to_user;
+      popl %eax;
+      RESTORE_ALL
+      iret;
 
 ENTRY(keyboard_handler)
-    SAVE_ALL
-    call keyboard_routine;
-    RESTORE_ALL
-    EOI
-    iret;
-
-ENTRY(clock_handler)
-    SAVE_ALL
-    EOI
-    call clock_routine;
-    RESTORE_ALL
-    iret;
-
+      SAVE_ALL
+      pushl %eax;
+      call user_to_system;
+      popl %eax;
+      EOI
+      call keyboard_routine;
+      pushl %eax;
+      call system_to_user;
+      popl %eax;
+      RESTORE_ALL
+      iret;
 
 ENTRY(system_call_handler)
-    push $__USER_DS;
-    push %ebp
-    pushfl
-    push $__USER_CS
-    push 4(%ebp)
-    SAVE_ALL
-    cmpl $0, %eax;
-    jl err;
-    cmpl $MAX_SYSCALL, %eax;
-    jg err;
-    call *sys_call_table(,%eax, 0x04); // jump in steps on four, sys_call_table is a void* vector
-    jmp fin;
-err:
-    movl $-ENOSYS, %eax;  // error code for no such syscall
-fin:
-    movl %eax, 0x18(%esp);
-    RESTORE_ALL
-    movl (%esp), %edx;
-    movl 12(%esp), %ecx;
-    sti;
-    sysexit;
-
-    
-ENTRY(writeMSR)
-    push %ebp
-    movl %esp, %ebp
-    movl 8(%ebp), %ecx
-    movl 12(%ebp), %eax
-    xorl %edx, %edx
-    wrmsr 
-    popl %ebp
-    ret
-    
+	push $__USER_DS
+	push %ebp
+	pushfl
+	push $__USER_CS
+	push 4(%ebp)
+	SAVE_ALL	// What about arg 6?
+	cmpl $0, %eax
+	jl sysenter_err
+	cmpl $MAX_SYSCALL, %eax
+	jg sysenter_err
+	call *sys_call_table(, %eax, 0x04)
+	jmp sysenter_fin
+sysenter_err:
+	movl $-ENOSYS, %eax
+sysenter_fin:
+	movl %eax, 0x18(%esp)
+	RESTORE_ALL
+	movl (%esp), %edx // Return address
+	movl 12(%esp), %ecx	      // User stack address
+	sti
+	sysexit

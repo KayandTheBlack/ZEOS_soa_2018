@@ -7,13 +7,12 @@
 #include <hardware.h>
 #include <io.h>
 
-#include <system.h>
+#include <sched.h>
 
 #include <zeos_interrupt.h>
 
 Gate idt[IDT_ENTRIES];
 Register    idtR;
-
 
 char char_map[] =
 {
@@ -31,6 +30,23 @@ char char_map[] =
   '\0','\0','\0','\0','\0','\0','\0','\0',
   '\0','\0'
 };
+
+int zeos_ticks = 0;
+
+void clock_routine()
+{
+  zeos_show_clock();
+  zeos_ticks ++;
+  
+  schedule();
+}
+
+void keyboard_routine()
+{
+  unsigned char c = inb(0x60);
+  
+  if (c&0x80) printc_xy(0, 0, char_map[c&0x7f]);
+}
 
 void setInterruptHandler(int vector, void (*handler)(), int maxAccessibleFromPL)
 {
@@ -76,10 +92,18 @@ void setTrapHandler(int vector, void (*handler)(), int maxAccessibleFromPL)
   idt[vector].highOffset      = highWord((DWord)handler);
 }
 
-void keyboard_handler();
 void clock_handler();
+void keyboard_handler();
 void system_call_handler();
-//int write(int fd, char* buffer, int size);
+
+void setMSR(unsigned long msr_number, unsigned long high, unsigned long low);
+
+void setSysenter()
+{
+  setMSR(0x174, 0, __KERNEL_CS);
+  setMSR(0x175, 0, INITIAL_ESP);
+  setMSR(0x176, 0, (unsigned long)system_call_handler);
+}
 
 void setIdt()
 {
@@ -90,45 +114,11 @@ void setIdt()
   set_handlers();
 
   /* ADD INITIALIZATION CODE FOR INTERRUPT VECTOR */
-  /* here go idt init + MSR */
-  /*handlers in entry.S, code routines in here*/
-  /* wrappers in wrappers.S*/
-  /* syscalls in sys.c*/
-
-  //initialize IDT keyboard interrupt
+  setInterruptHandler(32, clock_handler, 0);
   setInterruptHandler(33, keyboard_handler, 0);
-  
-  //initialize IDT clock interrupt
-  setInterruptHandler(32, clock_handler, 0); //ticks are in system.c
 
-  //idt not necessary for syscalls, but we need to modify MSRs
-  writeMSR(0x174, (void*)__KERNEL_CS); //hope it works
-  writeMSR(0x175, (void*)INITIAL_ESP);
-  writeMSR(0x176, system_call_handler);
-  
-  //Prepare for Syscalls
-  //setTrapHandler(0x80, system_call_handler, 3);
+  setSysenter();
+
   set_idt_reg(&idtR);
 }
-
-
-void keyboard_routine() {
-    unsigned char x = inb(0x60);
-    unsigned char c = x & 0x7F;
-    if((x & 0x80) == 0) { //make
-        c = char_map[c];
-        if (c == '\0') 
-            c = 'C';
-        printc_xy(0,0,c); //Beware unsigned -> signed
-    }
-    //PROVISIONAL:
-    //task_switch(0x16000);
-}
-
-void clock_routine() {
-    zeos_ticks +=1;
-    schedule();
-    zeos_show_clock();
-}
-
 

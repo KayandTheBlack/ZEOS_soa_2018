@@ -10,20 +10,22 @@
 
 extern int errno;
 
-void perror(char * s);
-
 int write(int fd, char *buffer, int size);
 
 void itoa(int a, char *b);
 
 int strlen(char *a);
 
-int getpid();
+void perror();
 
-int gettime();
+int getpid();
 
 int fork();
 
 void exit();
+
+int yield();
+
+int get_stats(int pid, struct stats *st);
 
 #endif  /* __LIBC_H__ */
