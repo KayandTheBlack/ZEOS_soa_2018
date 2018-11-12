@@ -32,17 +32,35 @@ void writeStats(int pid, int wl){
 }
 
 void heavyIO() {
-    
+    int i;
+    char buff[1];
+    for(i=0;i<100;i++){
+        read(0,buff,50+i%50);
+    }
     writeStats(getpid(), 1);
 }
 
+int badfib(int n){
+    if (n == 0) return 0;
+    if (n == 1) return 1;
+    return badfib(n-1)+badfib(n-2);
+}
+
 void heavyCPU() {
-    
+    int i;
+    for(i=0;i<100;i++){
+        badfib(i%40);
+    }
     writeStats(getpid(), 2);
 }
 
 void mixed() {
-    
+    int i;
+    char buff[1];
+    for(i=0;i<100;i++){
+        badfib(i%39);
+        read(0,buff,(50+i%50)/2);
+    }
     writeStats(getpid(), 3);
 }
 
