@@ -1,7 +1,7 @@
 #include <libc.h>
 #include <stats.h>
 
-#define WORKMODEL 1
+#define WORKMODEL 2
 char buff[24];
 
 int pid;
@@ -49,7 +49,7 @@ int badfib(int n){
 void heavyCPU() {
     int i;
     for(i=0;i<100;i++){
-        badfib(i%40);
+        badfib(i%25);
     }
     writeStats(getpid(), 2);
 }
@@ -90,15 +90,17 @@ int __attribute__ ((__section__(".text.main")))
     workload2 = heavyIO;
     workload3 = mixed;
   }
+  char buff = '\n';
+  write(1, &buff, 1);
   x = fork();
-  if(!x) x = fork();
-  else workload1();
-  if(!x) x = fork();
-  else workload2();
   if(!x) {
-	workload3();
-	writeStats(0, 0);
-  }
+    x = fork();
+    if(!x) {
+        workload3();
+        writeStats(0, 0);
+    } else workload2();
+  } else workload1();
+  
   exit();
   return 0;
 }
