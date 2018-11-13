@@ -1,7 +1,7 @@
 #include <libc.h>
 #include <stats.h>
 
-#define WORKMODEL 2
+#define WORKMODEL 4 
 #define SCHED 1
 char buff[24];
 
@@ -42,7 +42,7 @@ void heavyIO() {
     int i;
     char buff[1];
     for(i=0;i<30;i++) {
-        read(0,buff,25+i%50);
+        read(0,buff,25+i);
     }
     writeStats(getpid(), 1);
 }
@@ -61,7 +61,7 @@ void mixed() {
     for(i=0;i<50;i++) {
         badfib(i%30);
         if(i%3==0)
-            read(0,buff,25+i%50);
+            read(0,buff,25+i);
     }
     writeStats(getpid(), 3);
 }
@@ -96,12 +96,14 @@ int __attribute__ ((__section__(".text.main")))
   char buff = '\n';
   write(1, &buff, 1);
   x = fork();
-  if(!x) {
+  if(x) {
     x = fork();
-    if(!x) {
+    if(x) 
         workload3();
-        writeStats(0, 0);
-    } else workload2();
+    else {
+	workload2();
+	writeStats(0, 0);
+    }
   } else workload1();
   
   exit();

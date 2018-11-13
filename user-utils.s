@@ -39,6 +39,36 @@
  ret
 
 
+.globl read; .type read, @function; .align 0; read:
+ pushl %ebp
+ movl %esp, %ebp
+ pushl %ebx;
+ movl $3, %eax
+ movl 0x8(%ebp), %ebx;
+ movl 0xC(%ebp), %ecx;
+ movl 0x10(%ebp), %edx;
+ call syscall_sysenter
+ popl %ebx
+ test %eax, %eax
+ js nok
+ popl %ebp
+ ret
+
+
+.globl set_sched_policy; .type set_sched_policy, @function; .align 0; set_sched_policy:
+ pushl %ebp
+ movl %esp, %ebp
+ pushl %ebx;
+ movl $17, %eax
+ movl 0x8(%ebp), %ebx;
+ call syscall_sysenter
+ popl %ebx
+ test %eax, %eax
+ js nok
+ popl %ebp
+ ret
+
+
 nok:
  neg %eax
  mov %eax, errno

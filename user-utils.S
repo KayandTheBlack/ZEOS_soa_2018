@@ -30,6 +30,36 @@ ENTRY(write)
 	popl %ebp
 	ret
 
+/* int read(int fd, char *buffer, int size) */
+ENTRY(read)
+	pushl %ebp
+	movl %esp, %ebp
+	pushl %ebx;  // Save EBX, ESI and EDI if modified
+	movl $3, %eax
+	movl 0x8(%ebp), %ebx;	//fd
+	movl 0xC(%ebp), %ecx;	//buffer
+	movl 0x10(%ebp), %edx;	//size
+	call syscall_sysenter
+	popl %ebx
+	test %eax, %eax
+	js nok	// if (eax < 0) -> 
+	popl %ebp
+	ret
+
+// int set_sched_policy(int policy)
+ENTRY(set_sched_policy)
+	pushl %ebp
+	movl %esp, %ebp
+	pushl %ebx;  // Save EBX, ESI and EDI if modified
+	movl $17, %eax
+	movl 0x8(%ebp), %ebx;	//policy
+	call syscall_sysenter
+	popl %ebx
+	test %eax, %eax
+	js nok	// if (eax < 0) -->
+	popl %ebp
+	ret
+
 /* Common code for negative return */
 nok:
 	neg %eax

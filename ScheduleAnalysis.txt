@@ -1,0 +1,61 @@
+Breve explicación:
+Usamos tres cargas diferentes de trabajo, mezclándolas en cuatro workloads diferentes y evaluamos su ejecución sobre dos políticas de planificación: Round Robin y FCFS.
+Nuestras cargas de trabajo consisten en lo siguiente:
+ 1. Heavy en I/O
+	La carga consiste en ejecutar la llamada bloqueante read un total de 30 veces, que deja el proceso bloqueado durante 25+i ticks, donde i es la iteración correspondiente (de 0 a 30).
+ 2. Heavy en CPU
+	Calculamos 100 veces el número de fibonacci correspondiente a i%30, donde i es la iteración correspondiente. Para ello usamos un algoritmo O(2^n), que da una buena carga de CPU.
+ 3. Mixto en ráfagas de CPU y I/O
+	La carga consiste en realizar 50 veces el siguiente trabajo: calcular el número de fibonacci i%30 con el método anterior y, si la iteración es divisible por 3 (un tercio de las iteraciones), realizar una operación read de 25+i ticks. Efectivamente intentamos realizar una mezcla consistente entre las dos cargas anteriores.
+
+Workload 1:
+  Tres procesos de tipo 1 (Heavy en I/O)
+  No hay demasiada diferencia entre ambas políticas, que dejan principalmente bloqueado cada proceso durante toda su ejecución. Particularmente notamos que la política RR tiene tiempo en ready, al contrario que la política FCFS, pero es negligible comparado con el tiempo en blocked.
+
+Workload 2:
+  Tres procesos de tipo 2 (Heavy en CPU)
+  Aquí notamos que ambas políticas se comportan de forma muy diferente, si bien ninguna deja a idle entrar en la CPU. En primer lugar, Round Robin termina los tres procesos en un tiempo total similar, unos 4500 ticks, mientras que en FCFS terminan de forma escalonada. Si bien puede parecer que RR es más lento, ambos toman el mismo tiempo en finalizar los tres procesos (aunque FCFS no los mantiene equilibrados).
+
+Workload 3:
+  Tres procesos de tipo 3 (Mixto en ráfagas)
+  Similar que en el caso 1, no notamos diferencia real en la distribución de tiempo, sin embargo aparentemente FCFS tarda menos en global, teniendo menos tiempo idle en la CPU. Ésto se debe a que FCFS solo saca un proceso de la CPU cuando entra en un read, y para cuando el tercero entra es bastante probable que el primero haya terminado o que vaya a terminar pronto. Sin embargo, RR puede darse el caso de que saque un proceso de la CPU durante una ráfaga de computación, justo antes de bloquearse, varias veces. Ésto sincronizaría las operaciones read para que empezasen a la vez (uno entra en read, cambia a otro que justo entra en read etcétera). Por lo tanto, aquí sería mejor usar FCFS, para aprovechar los periodos bloqueados para hacer computación en otro proceso.
+
+Workload 4:
+  Cada una de las cargas en un proceso diferente.
+  Consideramos éste el caso más interesante (y más ajustado a un caso de sistema operativo de PC promedio). Cada proceso realiza tareas diferentes, y aquí vemos como Round Robin gana por mucho a FCFS (de entrada reduciendo el tiempo en idle a casi la mitad). Entendemos que sucede lo siguiente: en FCFS, el proceso de I/O se bloquea enseguida, en cuyo momento entra el proceso de CPU que hace su ráfaga entera y acaba. Tras esto, entra el proceso mixto, que realiza las tres primeras iteraciones y se bloquea. En estos momentos proceso uno ya ha terminado el primer bloqueo y vuelve a entrar, bloqueándose casi instantáneamente en el siguiente read. Estamos en el caso de dos operaciones de I/O sincronizadas en el comienzo, y este caso se repetirá constantemente. Cuando uno de los dos termine, tomará la CPU de idle y al cabo de poco se bloqueará, y el otro hará lo mismo de nuevo.
+  En cambio, en el caso de RR, el de I/O empieza y se bloquea, en cuyo momento entrará el proceso de CPU, ejecutando unas cuantas iteraciones antes de ser echado. Proceso 3 hará lo mismo, pero en bloquearse aunque ambos proceso que hacen I/O estén bloqueados, CPU puede entrar a realizar computación. Ésto hace que, mientras CPU dure, idle no entrará en la CPU, haciendo de RR la mejor política con diferencia en este caso.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
