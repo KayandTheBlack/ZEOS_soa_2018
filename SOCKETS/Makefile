@@ -14,3 +14,6 @@ socketMng.o: socketMng.c
 
 clean: 
 	rm -f serverSocket clientSocket socketMng.o launchClient
+
+cleanLogs:
+	rm client_* launch_info

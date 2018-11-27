@@ -14,8 +14,9 @@ int max_concurrent = 0;
 int current_concurrent = 0;
 
 void trat_sigchld (int signum) {
-	while (waitpid(-1, NULL, WNOHANG) > 0)
+	while (waitpid(-1, NULL, WNOHANG) > 0){
 		current_concurrent --;
+	}
 }
 
 main(int argc, char *argv[]) {

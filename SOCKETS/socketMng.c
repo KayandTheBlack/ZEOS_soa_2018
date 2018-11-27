@@ -7,6 +7,9 @@
 #include <stdlib.h>
 #include <errno.h>
 #define MAXCON 5
+//MAXCON NOT USED
+
+
 
 // Create a socket and initialize it to be able to accept 
 // connections.
