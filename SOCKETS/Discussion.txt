@@ -1,0 +1,9 @@
+We performed a total of 10 experiments per server type:
+With 20 iterations and clients = [10,50,100,200,500] and with 1 iteration and clients = [10,50,100,200,500].
+We repeated this experiments to get an average value seeing the inconsistency of the answers.
+
+The results are the following:
+- Sequential server is the worst in all cases.
+- The ones with the best scalability are thread concurrent server and the 100-bounded server when using 20 iterations. For 1 iteration on the other hand, the 200-bounded server also performs well.
+
+We presume this is because threads unbounded do not consume as many resources as the rest. Also since 1 iterations is a very light workload 200-bounded is not as punished as with 20, and therefore can perform better.

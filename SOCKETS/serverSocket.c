@@ -44,7 +44,6 @@ doServiceFork(int fd) {
     forksAlive++;
     if(ret == 0) {
         doService(fd);
-        pthread_exit();
     }
 }
 void proc_exit() {

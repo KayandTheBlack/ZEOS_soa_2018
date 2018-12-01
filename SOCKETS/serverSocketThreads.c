@@ -2,20 +2,21 @@
 #include <string.h>
 #include <stdio.h>
 #include <signal.h>
+#include <pthread.h>
 
-doService(int fd) {
+doService(int *fdp) {
     int i = 0;
     char buff[80];
     char buff2[80];
     int ret;
-    int socket_fd = (int) fd;
+    int socket_fd = (int) fdp;
 
 	ret = read(socket_fd, buff, sizeof(buff));
 	while(ret > 0) {
 		buff[ret]='\0';
 		sprintf(buff2, "Server [%d] received: %s\n", getpid(), buff);
 		write(1, buff2, strlen(buff2));
-		ret = write(fd, "caracola ", 8);
+		ret = write(socket_fd, "caracola ", 8);
 		if (ret < 0) {
 			perror ("Error writing to socket");
 			exit(1);
@@ -28,16 +29,29 @@ doService(int fd) {
 	}
 	sprintf(buff2, "Server [%d] ends service\n", getpid());
 	write(1, buff2, strlen(buff2));
+	//pthread_exit(0)
 }
 
 
 doServiceThr(int fd) {
-    
+    pthread_t thread_id; 
+    //printf("Before Thread\n"); 
+    // Falseamos un puntero que realmente es el parametro para evitar race condition
+    while(pthread_create(&thread_id, NULL, doService, (void *) fd) < 0); 
+    pthread_detach(thread_id);
 }
-void proc_exit() {
-    waitpid(-1, NULL);
-    forksAlive--;
+
+
+/*
+doServiceFork(int fd) {
+    int ret=-1;
+    while(ret<0) ret = fork();
+    forksAlive++;
+    if(ret == 0) {
+        doService(fd);
+    }
 }
+*/
 
 main (int argc, char *argv[])
 {
@@ -54,8 +68,6 @@ main (int argc, char *argv[])
       exit (1);
     }
     
-    serverType = atoi(argv[2]);
-    signal (SIGCHLD, proc_exit); //?
     port = atoi(argv[1]);
     socketFD = createServerSocket (port);
     if (socketFD < 0){
@@ -70,6 +82,7 @@ main (int argc, char *argv[])
           deleteSocket(socketFD);
           exit (1);
       }
-      doServiceFork(connectionFD);
+
+      doServiceThr(connectionFD);
     }
 }
