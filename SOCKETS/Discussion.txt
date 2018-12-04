@@ -1,9 +1,9 @@
 We performed a total of 10 experiments per server type:
-With 20 iterations and clients = [10,50,100,200,500] and with 1 iteration and clients = [10,50,100,200,500].
+With 1000 iterations and clients = [10,20,30,40,50] and with 2000 iteration and clients = [10,20,30,40,50].
 We repeated this experiments to get an average value seeing the inconsistency of the answers.
 
 The results are the following:
 - Sequential server is the worst in all cases.
-- The ones with the best scalability are thread concurrent server and the 100-bounded server when using 20 iterations. For 1 iteration on the other hand, the 200-bounded server also performs well.
-
-We presume this is because threads unbounded do not consume as many resources as the rest. Also since 1 iterations is a very light workload 200-bounded is not as punished as with 20, and therefore can perform better.
+- The ones with the best scalability are the unbounded and the thread concurrent server, since their plots are mostly flat (with the exception of the outlier at 50 clients, 2000 iterations in the thread server, which wouldn't go down after many experiments).
+- Bounded servers do not seem to improve with respect to unbounded at any point in our experiment set. This is most likely because we are not testing a massive number of clients, in which the forking could be problematic in a case of too many forks.
+- We see a massive decrease in performance for the bounded servers when we reach the bound. This is obvious, since the petitions need to wait until another thread ends. However, we have also detected an outlier in 40-bounded, 40 clients (both 1000 and 2000 iterations). In this case, we expected to find a lower execution time (which happened one out of 50 times), but it was mostly a very high number. We presume this might be because of external reasons not linked to the scheme itself.

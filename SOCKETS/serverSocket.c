@@ -16,7 +16,8 @@ doService(int fd) {
     char buff2[80];
     int ret;
     int socket_fd = (int) fd;
-
+	//sprintf(buff2, "%d\n", socket_fd);
+	//write(1, buff2, strlen(buff2));
 	ret = read(socket_fd, buff, sizeof(buff));
 	while(ret > 0) {
 		buff[ret]='\0';
@@ -39,11 +40,14 @@ doService(int fd) {
 
 
 doServiceFork(int fd) {
+    char buff[80];
     int ret=-1;
+	//sprintf(buff, "PIDFORKER: %d\n", getpid());
     while(ret<0) ret = fork();
     forksAlive++;
     if(ret == 0) {
         doService(fd);
+        exit(0);
     }
 }
 void proc_exit() {
